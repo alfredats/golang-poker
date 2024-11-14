@@ -1,11 +1,11 @@
 package classes
 
-type cuite int 
+type Cuite int 
 
-func (s cuite) valid() bool {
-  return (int(s) > 0) && (int(s) < 5)
+func (s Cuite) Valid() bool {
+  return (int(s) >= 0) && (int(s) <= 3)
 }
 
-func (s cuite) compare(z cuite) int {
+func (s Cuite) Compare(z Cuite) int {
   return int(s) - int(z)
 }

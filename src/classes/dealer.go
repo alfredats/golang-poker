@@ -2,26 +2,30 @@ package classes
 
 import (
 	crand "crypto/rand"
-	"encoding/binary"
 	rand "math/rand"
+
+	"encoding/binary"
+  "errors"
 )
 
 const (
   crank_cnt = 13
   cuite_cnt = 4
+  deck_total = 52
 )
 
 type Dealer struct {
-  dealt [][]int
+  deck []int
+  dealt int
   rng *rand.Rand
   rng_src rand.Source
 
 }
 
 func (d *Dealer) Init() {
-  d.dealt = make([][]int, crank_cnt)
-  for i := range d.dealt {
-    d.dealt[i] = make([]int, cuite_cnt)
+  d.deck = make([]int, deck_total)
+  for i := 0; i < deck_total; i++ {
+    d.deck[i] = i
   }
 
   var b [8]byte
@@ -32,26 +36,29 @@ func (d *Dealer) Init() {
 
   d.rng_src= rand.NewSource(int64(binary.LittleEndian.Uint64(b[:])))
   d.rng = rand.New(d.rng_src)
+
+  d.rng.Shuffle(len(d.deck), func(i, j int) {
+    d.deck[i], d.deck[j] = d.deck[j], d.deck[i]
+  })
 }
 
-// internal method for dealing a single card
-func (d *Dealer) deal() card {
-  sut := d.rng.Intn(cuite_cnt)
-  rnk := d.rng.Intn(crank_cnt)
 
-  if (d.dealt[rnk][sut] != 0) {
-    return d.deal()
+func (d *Dealer) Deal(n int) ([]Card, error) {
+  if d.dealt >=  deck_total {
+    return nil, errors.New("No more cards available")
+  }
+  end := d.dealt + n
+  var err error = nil
+  if end > deck_total { 
+    end = deck_total 
+    err = errors.New("Deck is fully dealt")
   }
 
-  d.dealt[rnk][sut] = 1
-  return card{crank(rnk), cuite(sut)}
-}
-
-func (d *Dealer) Deal(n uint) []card {
-  cards := make([]card, n)
-  for i := range cards {
-    cards[i] = d.deal()
+  cards := make([]Card, n)
+  for i, c := range d.deck[d.dealt : end] {
+    cards[i] = Card{Crank(c%crank_cnt), Cuite(c/crank_cnt)}
   }
-  return cards
+  d.dealt = end
+  return cards, err 
 }
 
