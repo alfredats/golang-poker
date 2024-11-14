@@ -11,7 +11,7 @@ import (
 const (
   crank_cnt = 13
   cuite_cnt = 4
-  deck_total = 52
+  Deck_total = 52
 )
 
 type Dealer struct {
@@ -23,8 +23,8 @@ type Dealer struct {
 }
 
 func (d *Dealer) Init() {
-  d.deck = make([]int, deck_total)
-  for i := 0; i < deck_total; i++ {
+  d.deck = make([]int, Deck_total)
+  for i := 0; i < Deck_total; i++ {
     d.deck[i] = i
   }
 
@@ -44,13 +44,14 @@ func (d *Dealer) Init() {
 
 
 func (d *Dealer) Deal(n int) ([]Card, error) {
-  if d.dealt >=  deck_total {
+  if d.dealt >=  Deck_total {
     return nil, errors.New("No more cards available")
   }
   end := d.dealt + n
   var err error = nil
-  if end > deck_total { 
-    end = deck_total 
+  if end > Deck_total { 
+    n = Deck_total - d.dealt
+    end = Deck_total 
     err = errors.New("Deck is fully dealt")
   }
 

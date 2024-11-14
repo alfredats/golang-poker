@@ -43,11 +43,30 @@ func (s *DealerTestSuite) Test_DealReturnsFullDeck() {
   for _, c := range cards {
     s.True(c.Valid())
   }
-
-  cards, err = s.d.Deal(1)
-  s.Error(err)
 }
 
+func (s*DealerTestSuite) Test_DealReturnsErrorAfterAllCardsDealt() {
+  n := 52
+  cards, err := s.d.Deal(n)
+  s.Nil(err)
+  s.Len(cards, n)
+
+  cards, err = s.d.Deal(1)
+  s.NotNil(err)
+  s.Len(cards, 0)
+}
+
+func (s*DealerTestSuite) Test_DealReturnsErrorWhenCallExceedsAllCards() {
+  x := 50
+  cards, err := s.d.Deal(x)
+  s.Nil(err)
+  s.Len(cards, x)
+
+  y := 10 
+  cards, err = s.d.Deal(y)
+  s.NotNil(err)
+  s.Len(cards, classes.Deck_total-x)
+}
 
 
 
